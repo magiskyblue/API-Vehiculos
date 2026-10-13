@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlquilaYa S.A. | Admin Pro</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7f6;
+            overflow-x: hidden;
+        }
+        /* Sidebar Styles */
+        .sidebar {
+            height: 100vh;
+            background: linear-gradient(180deg, #111928 0%, #1f2937 100%);
+            color: white;
+            position: fixed;
+            width: 260px;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+        .sidebar-brand {
+            padding: 2rem 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .nav-link-custom {
+            color: #9ca3af;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            transition: 0.3s;
+            font-weight: 500;
+            border-left: 4px solid transparent;
+        }
+        .nav-link-custom:hover, .nav-link-custom.active {
+            color: #fff;
+            background-color: rgba(255,255,255,0.05);
+            border-left-color: #3b82f6;
+        }
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        /* Cards & Tables */
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03);
+            margin-bottom: 2rem;
+        }
+        .card-header-custom {
+            background-color: transparent;
+            border-bottom: 1px solid #f3f4f6;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .table > :not(caption) > * > * {
+            padding: 1rem 1.5rem;
+            vertical-align: middle;
+        }
+        .table thead th {
+            background-color: #f9fafb;
+            color: #6b7280;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        /* Badges */
+        .badge-soft-success { background-color: #def7ec; color: #03543f; padding: 0.5em 0.8em; }
+        .badge-soft-warning { background-color: #fdf6b2; color: #723b13; padding: 0.5em 0.8em; }
+        .badge-soft-primary { background-color: #e1effe; color: #1e429f; padding: 0.5em 0.8em; }
+        
+        /* Stats Cards */
+        .stat-card {
+            border-left: 5px solid;
+            transition: transform 0.2s;
+        }
+        .stat-card:hover { transform: translateY(-5px); }
+        .border-blue { border-left-color: #3b82f6; }
+        .border-green { border-left-color: #10b981; }
+        .border-purple { border-left-color: #8b5cf6; }
+
+        .section-view { display: none; }
+        .section-view.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <a href="#" class="sidebar-brand">
+            <i class="fa-solid fa-car-side text-primary"></i> AlquilaYa
+        </a>
+        <div class="mt-3">
+            <a href="#" class="nav-link-custom active" onclick="mostrarSeccion('dashboard', this)">
+                <i class="fa-solid fa-chart-pie"></i> Panel Principal
+            </a>
+            <a href="#" class="nav-link-custom" onclick="mostrarSeccion('vehiculos', this)">
+                <i class="fa-solid fa-car"></i> Flota de Vehículos
+            </a>
+            <a href="#" class="nav-link-custom" onclick="mostrarSeccion('clientes', this)">
+                <i class="fa-solid fa-users"></i> Directorio Clientes
+            </a>
+            <a href="#" class="nav-link-custom" onclick="mostrarSeccion('alquileres', this)">
+                <i class="fa-solid fa-file-signature"></i> Gestión Reservas
+            </a>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="main-content">
+        
+        <!-- HEADER TOP -->
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h3 class="fw-bold text-dark mb-0" id="titulo-seccion">Dashboard General</h3>
+                <p class="text-muted mb-0">Bienvenido al sistema de administración SOA</p>
+            </div>
+            <div>
+                <div class="bg-white rounded-pill shadow-sm px-4 py-2 d-flex align-items-center gap-2">
+                    <div class="bg-primary rounded-circle" style="width: 10px; height: 10px;"></div>
+                    <span class="fw-medium">Sistema Online</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: DASHBOARD -->
+        <div id="dashboard" class="section-view active">
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card stat-card border-blue">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted fw-semibold mb-1">TOTAL CLIENTES</p>
+                                    <h2 class="fw-bold mb-0" id="kpi-clientes">--</h2>
+                                </div>
+                                <div class="bg-primary bg-opacity-10 p-3 rounded">
+                                    <i class="fa-solid fa-users text-primary fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card stat-card border-green">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted fw-semibold mb-1">AUTOS DISPONIBLES</p>
+                                    <h2 class="fw-bold mb-0" id="kpi-disponibles">--</h2>
+                                </div>
+                                <div class="bg-success bg-opacity-10 p-3 rounded">
+                                    <i class="fa-solid fa-car-on text-success fs-3"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card stat-card border-purple">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="text-muted fw-semibold mb-1">RESERVAS ACTIVAS</p>
+                                    <h2 class="fw-bold mb-0" id="kpi-alquileres">--</h2>
+                                </div>
+                                <div class="bg-purple bg-opacity-10 p-3 rounded" style="background-color: #ede9fe;">
+                                    <i class="fa-solid fa-key text-purple fs-3" style="color: #8b5cf6;"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Banner ilustrativo -->
+            <div class="card bg-primary text-white overflow-hidden">
+                <div class="card-body p-5 d-flex justify-content-between align-items-center">
+                    <div style="z-index: 2;">
+                        <h4 class="fw-bold mb-2">Modernizando las operaciones</h4>
+                        <p class="mb-0 opacity-75">Navega por el menú lateral para gestionar el inventario y clientes de AlquilaYa S.A.</p>
+                    </div>
+                    <i class="fa-solid fa-car-tunnel opacity-25" style="font-size: 8rem; margin-right: -2rem; margin-bottom: -2rem;"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: VEHÍCULOS -->
+        <div id="vehiculos" class="section-view">
+            <div class="card">
+                <div class="card-header-custom">
+                    <h5 class="fw-bold mb-0">Directorio de Vehículos</h5>
+                    <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalVehiculo">
+                        <i class="fa-solid fa-plus me-1"></i> Añadir Auto
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-borderless table-hover mb-0">
+                        <thead>
+                            <tr><th>ID</th><th>Modelo</th><th>Año</th><th>Matrícula</th><th>Tarifa/Día</th><th>Estado</th></tr>
+                        </thead>
+                        <tbody id="tabla-vehiculos"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: CLIENTES -->
+        <div id="clientes" class="section-view">
+            <div class="card">
+                <div class="card-header-custom">
+                    <h5 class="fw-bold mb-0">Registro de Clientes</h5>
+                    <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalCliente">
+                        <i class="fa-solid fa-user-plus me-1"></i> Registrar
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-borderless table-hover mb-0">
+                        <thead>
+                            <tr><th>ID</th><th>Usuario</th><th>Email</th><th>Licencia</th><th>Contacto</th></tr>
+                        </thead>
+                        <tbody id="tabla-clientes"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: ALQUILERES -->
+        <div id="alquileres" class="section-view">
+            <div class="card">
+                <div class="card-header-custom">
+                    <h5 class="fw-bold mb-0">Historial de Reservas</h5>
+                    <button class="btn btn-success rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalAlquiler">
+                        <i class="fa-solid fa-calendar-check me-1"></i> Nueva Reserva
+                    </button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-borderless table-hover mb-0">
+                        <thead>
+                            <tr><th>Reserva</th><th>Cliente</th><th>Auto</th><th>Periodo</th><th>Total</th><th>Status</th></tr>
+                        </thead>
+                        <tbody id="tabla-alquileres"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ================= MODALES ================= -->
+    
+    <!-- Modal Vehículo -->
+    <div class="modal fade" id="modalVehiculo" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0 bg-light pb-0">
+                    <h5 class="modal-title fw-bold">Detalles del Vehículo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formVehiculo" class="row g-3 mt-1">
+                        <div class="col-md-6"><label class="form-label text-muted small fw-bold">MARCA</label><input type="text" class="form-control bg-light border-0" id="vehMarca" required></div>
+                        <div class="col-md-6"><label class="form-label text-muted small fw-bold">MODELO</label><input type="text" class="form-control bg-light border-0" id="vehModelo" required></div>
+                        <div class="col-md-4"><label class="form-label text-muted small fw-bold">AÑO</label><input type="number" class="form-control bg-light border-0" id="vehAnio" required></div>
+                        <div class="col-md-4"><label class="form-label text-muted small fw-bold">PLACA</label><input type="text" class="form-control bg-light border-0 text-uppercase" id="vehPlaca" required></div>
+                        <div class="col-md-4"><label class="form-label text-muted small fw-bold">TARIFA ($)</label><input type="number" step="0.01" class="form-control bg-light border-0" id="vehTarifa" required></div>
+                        <div class="col-12"><label class="form-label text-muted small fw-bold">OFICINA ASIGNADA</label><select class="form-select bg-light border-0" id="vehOficina" required></select></div>
+                        <div class="col-12 mt-4"><button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-bold">Guardar Vehículo</button></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cliente -->
+    <div class="modal fade" id="modalCliente" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0 bg-light pb-0">
+                    <h5 class="modal-title fw-bold">Perfil del Cliente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formCliente" class="row g-3 mt-1">
+                        <div class="col-md-6"><label class="form-label text-muted small fw-bold">NOMBRE</label><input type="text" class="form-control bg-light border-0" id="cliNombre" required></div>
+                        <div class="col-md-6"><label class="form-label text-muted small fw-bold">APELLIDO</label><input type="text" class="form-control bg-light border-0" id="cliApellido" required></div>
+                        <div class="col-12"><label class="form-label text-muted small fw-bold">CORREO ELECTRÓNICO</label><input type="email" class="form-control bg-light border-0" id="cliEmail" required></div>
+                        <div class="col-md-6"><label class="form-label text-muted small fw-bold">LICENCIA DE CONDUCIR</label><input type="text" class="form-control bg-light border-0 text-uppercase" id="cliLicencia" required></div>
+                        <div class="col-md-6"><label class="form-label text-muted small fw-bold">NÚMERO TELEFÓNICO</label><input type="text" class="form-control bg-light border-0" id="cliTelefono" required></div>
+                        <div class="col-12 mt-4"><button type="submit" class="btn btn-primary w-100 py-2 rounded-pill fw-bold">Registrar Cliente</button></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Alquiler -->
+    <div class="modal fade" id="modalAlquiler" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header border-0 bg-light pb-0">
+                    <h5 class="modal-title fw-bold">Generar Nueva Reserva</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formAlquiler" class="row g-3 mt-1">
+                        <div class="col-12"><label class="form-label text-muted small fw-bold">SELECCIONAR CLIENTE</label><select class="form-select bg-light border-0" id="alqCliente" required></select></div>
+                        <div class="col-12"><label class="form-label text-muted small fw-bold">VEHÍCULO DISPONIBLE</label><select class="form-select bg-light border-0" id="alqVehiculo" required></select></div>
+                        <div class="col-md-6"><label class="form-label text-muted small fw-bold">FECHA INICIO</label><input type="date" class="form-control bg-light border-0" id="alqInicio" required></div>
+                        <div class="col-md-6"><label class="form-label text-muted small fw-bold">FECHA DEVOLUCIÓN</label><input type="date" class="form-control bg-light border-0" id="alqFin" required></div>
+                        <div class="col-12 mt-4"><button type="submit" class="btn btn-success w-100 py-2 rounded-pill fw-bold">Confirmar Alquiler</button></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Configuración de Notificaciones discretas (Toasts)
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 2500,
+            timerProgressBar: true,
+            background: '#1f2937',
+            color: '#fff'
+        });
+
+        const titulos = {
+            'dashboard': 'Dashboard General',
+            'vehiculos': 'Directorio de Vehículos',
+            'clientes': 'Directorio de Clientes',
+            'alquileres': 'Gestión de Reservas'
+        };
+
+        function mostrarSeccion(id, element) {
+            // Animación de cambio de pestaña
+            document.querySelectorAll('.nav-link-custom').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.section-view').forEach(el => el.classList.remove('active'));
+            
+            element.classList.add('active');
+            document.getElementById(id).classList.add('active');
+            document.getElementById('titulo-seccion').innerText = titulos[id];
+            
+            // Refrescar los datos siempre que cambias de vista
+            actualizarTodo();
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            actualizarTodo();
+            Toast.fire({ icon: 'info', title: 'Sistema Conectado a MySQL' });
+        });
+
+        // La función maestra para actualizar todo el Panel
+        function actualizarTodo() {
+            cargarVehiculos();
+            cargarClientes();
+            cargarAlquileres();
+            cargarDropdownOficinas();
+        }
+
+        // ================= GET DATA (Lectura en vivo) =================
+        function cargarVehiculos() {
+            fetch('/api/vehiculos').then(r => r.json()).then(datos => {
+                
+                // 1. ACTUALIZAR KPI DEL DASHBOARD
+                let disponibles = datos.filter(v => v.estado === 'Disponible').length;
+                document.getElementById('kpi-disponibles').innerText = disponibles;
+
+                // 2. ACTUALIZAR LA TABLA DE VEHÍCULOS
+                let html = '';
+                datos.forEach(v => {
+                    let badge = v.estado === 'Disponible' ? 'badge-soft-success' : 'badge-soft-warning';
+                    html += `<tr>
+                        <td class="text-muted fw-medium">#${v.id}</td>
+                        <td><div class="fw-bold">${v.marca}</div><div class="small text-muted">${v.modelo}</div></td>
+                        <td>${v.anio}</td>
+                        <td><span class="text-uppercase fw-semibold" style="letter-spacing:1px">${v.placa}</span></td>
+                        <td class="fw-bold text-dark">$${v.tarifaDiaria}</td>
+                        <td><span class="badge rounded-pill ${badge}">${v.estado}</span></td>
+                    </tr>`;
+                });
+                document.getElementById('tabla-vehiculos').innerHTML = html || '<tr><td colspan="6" class="text-center py-4 text-muted">Aún no hay vehículos registrados.</td></tr>';
+
+                // 3. ACTUALIZAR EL SELECT DEL MODAL DE ALQUILER
+                const selectVehiculosAlq = document.getElementById('alqVehiculo');
+                if(selectVehiculosAlq) {
+                    const autosDisponibles = datos.filter(x => x.estado === 'Disponible');
+                    selectVehiculosAlq.innerHTML = '<option value="" disabled selected>Seleccione Auto Disponible...</option>' + 
+                        autosDisponibles.map(x => `<option value="${x.id}">${x.marca} ${x.modelo} - $${x.tarifaDiaria}/día</option>`).join('');
+                }
+            });
+        }
+
+        function cargarClientes() {
+            fetch('/api/clientes').then(r => r.json()).then(datos => {
+                
+                // 1. ACTUALIZAR KPI DEL DASHBOARD
+                document.getElementById('kpi-clientes').innerText = datos.length;
+                
+                // 2. ACTUALIZAR LA TABLA DE CLIENTES
+                let html = '';
+                datos.forEach(c => {
+                    html += `<tr>
+                        <td class="text-muted fw-medium">#${c.id}</td>
+                        <td class="fw-bold">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center" style="width:35px; height:35px;">${c.nombre.charAt(0)}${c.apellido.charAt(0)}</div>
+                                <div>${c.nombre} ${c.apellido}</div>
+                            </div>
+                        </td>
+                        <td>${c.email}</td>
+                        <td>${c.licencia}</td>
+                        <td>${c.telefono}</td>
+                    </tr>`;
+                });
+                document.getElementById('tabla-clientes').innerHTML = html || '<tr><td colspan="5" class="text-center py-4 text-muted">Aún no hay clientes registrados.</td></tr>';
+
+                // 3. ACTUALIZAR EL SELECT DEL MODAL DE ALQUILER
+                const selectClientesAlq = document.getElementById('alqCliente');
+                if(selectClientesAlq) {
+                     selectClientesAlq.innerHTML = '<option value="" disabled selected>Seleccione Cliente...</option>' + 
+                        datos.map(x => `<option value="${x.id}">${x.nombre} ${x.apellido}</option>`).join('');
+                }
+            });
+        }
+
+        function cargarAlquileres() {
+            fetch('/api/alquileres').then(r => r.json()).then(datos => {
+                
+                // 1. ACTUALIZAR KPI DEL DASHBOARD
+                document.getElementById('kpi-alquileres').innerText = datos.length;
+
+                // 2. ACTUALIZAR TABLA DE ALQUILERES
+                let html = '';
+                datos.forEach(a => {
+                    html += `<tr>
+                        <td class="text-muted fw-medium">#${a.id}</td>
+                        <td class="fw-semibold">${a.cliente.nombre} ${a.cliente.apellido}</td>
+                        <td>${a.vehiculo.marca} ${a.vehiculo.modelo}</td>
+                        <td class="small"><i class="fa-regular fa-calendar text-muted"></i> ${a.fechaInicio} <br> <i class="fa-solid fa-arrow-right text-muted mx-1"></i> ${a.fechaFin}</td>
+                        <td class="fw-bold text-success">$${a.precioTotal}</td>
+                        <td><span class="badge rounded-pill badge-soft-primary">${a.estado}</span></td>
+                    </tr>`;
+                });
+                document.getElementById('tabla-alquileres').innerHTML = html || '<tr><td colspan="6" class="text-center py-4 text-muted">Aún no hay reservas registradas.</td></tr>';
+            });
+        }
+
+        function cargarDropdownOficinas() {
+            fetch('/api/oficinas').then(r => r.json()).then(datos => {
+                const select = document.getElementById('vehOficina');
+                select.innerHTML = '<option value="" disabled selected>Seleccione Sucursal...</option>';
+                datos.forEach(o => select.innerHTML += `<option value="${o.id}">${o.nombreOficina}</option>`);
+            });
+        }
+
+        // ================= ENVIAR DATOS (POST) =================
+        document.getElementById('formVehiculo').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const payload = { marca: document.getElementById('vehMarca').value, modelo: document.getElementById('vehModelo').value, anio: parseInt(document.getElementById('vehAnio').value), placa: document.getElementById('vehPlaca').value.toUpperCase(), tarifaDiaria: parseFloat(document.getElementById('vehTarifa').value), oficina: { id: parseInt(document.getElementById('vehOficina').value) }, estado: 'Disponible' }; 
+            
+            fetch('/api/vehiculos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) })
+            .then(r => { 
+                if(r.ok) { 
+                    bootstrap.Modal.getInstance(document.getElementById('modalVehiculo')).hide(); 
+                    
+                    // Pequeña pausa para asegurar que MySQL guarde antes de pedir datos
+                    setTimeout(() => {
+                        actualizarTodo(); 
+                        Swal.fire('¡Éxito!', 'Vehículo agregado a la flota.', 'success'); 
+                        Toast.fire({ icon: 'success', title: 'Panel actualizado' });
+                    }, 500);
+                    
+                    this.reset(); 
+                } else { 
+                    Swal.fire('Error', 'Verifica los datos y la placa.', 'error'); 
+                } 
+            });
+        });
+
+        document.getElementById('formCliente').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const payload = { nombre: document.getElementById('cliNombre').value, apellido: document.getElementById('cliApellido').value, email: document.getElementById('cliEmail').value, licencia: document.getElementById('cliLicencia').value, telefono: document.getElementById('cliTelefono').value };
+            
+            fetch('/api/clientes', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) })
+            .then(r => { 
+                if(r.ok) { 
+                    bootstrap.Modal.getInstance(document.getElementById('modalCliente')).hide(); 
+                    
+                    setTimeout(() => {
+                        actualizarTodo(); 
+                        Swal.fire('¡Éxito!', 'Cliente registrado.', 'success'); 
+                        Toast.fire({ icon: 'success', title: 'Panel actualizado' }); 
+                    }, 500);
+
+                    this.reset(); 
+                } else { 
+                    Swal.fire('Error', 'Verifica que el email no esté duplicado.', 'error'); 
+                } 
+            });
+        });
+
+        document.getElementById('formAlquiler').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const payload = { cliente: {id: document.getElementById('alqCliente').value}, vehiculo: {id: document.getElementById('alqVehiculo').value}, fechaInicio: document.getElementById('alqInicio').value, fechaFin: document.getElementById('alqFin').value };
+            
+            fetch('/api/alquileres', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) })
+            .then(r => { 
+                if(r.ok) { 
+                    bootstrap.Modal.getInstance(document.getElementById('modalAlquiler')).hide(); 
+                    
+                    setTimeout(() => {
+                        actualizarTodo(); 
+                        Swal.fire('¡Reserva Creada!', 'El vehículo está ahora en estatus Alquilado.', 'success'); 
+                        Toast.fire({ icon: 'success', title: 'KPIs Actualizados' }); 
+                    }, 500);
+                    
+                    this.reset(); 
+                } else { 
+                    Swal.fire('Error', 'No se pudo completar la reserva.', 'error'); 
+                } 
+            });
+        });
+
+        // Aseguramos que los modales se preparen al abrirlos
+        document.getElementById('modalAlquiler').addEventListener('show.bs.modal', function () {
+            actualizarTodo(); // Forzamos una actualización justa antes de mostrar el modal
+        });
+    </script>
+</body>
+</html>
